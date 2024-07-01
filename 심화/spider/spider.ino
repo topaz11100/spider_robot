@@ -72,17 +72,23 @@ void stand(int speed) {
   move_arr(temp, speed);
 }
 
+bool is_same_arr(int arr[]){
+  for(int i=0; i<8; i+=1){
+    if(motor[i].read() != arr[i]){
+      return false;
+    }
+    return true;
+  }
+}
+
 void move_arr(int arr[], int speed) {
-  bool check[8] = { false, false, false, false, false, false, false, false };
-  while (!(check[0] && check[1] && check[2] && check[3]
-        && check[4] && check[5] && check[6] && check[7])) {
+  while (!is_same_arr(arr)) {
     for (int i = 0; i < 8; i += 1) {
       int temp = motor[i].read();
       if      (temp > arr[i]) motor[i].write(temp - 1);
       else if (temp < arr[i]) motor[i].write(temp + 1);
-      else    check[i] = true;
-      delayMicroseconds(speed);
     }
+    delayMicroseconds(speed);
   }
 }
 
@@ -94,12 +100,12 @@ void move_legfoot(int num, int arr[], int speed) {
       if      (temp > arr[i]) motor[num + 4*i].write(temp - 1);
       else if (temp < arr[i]) motor[num + 4*i].write(temp + 1);
       else    check[i] = true;
-      delayMicroseconds(speed);
     }
+    delayMicroseconds(speed);
   }
 }
 
-void move_angle(int num, int angle, int speed) {
+void move_one(int num, int angle, int speed) {
   while (true) {
     int temp = motor[num].read();
     if      (temp > angle) motor[num].write(temp - 1);
@@ -135,11 +141,11 @@ void walk(int speed){
                  motor[4].read(),  limit[5][1],  motor[6].read(), limit[7][1] };
   
   move_arr(posi1, speed);
-  move_angle(4, limit[4][0], speed);
-  move_angle(6, limit[6][0], speed);
+  move_one(4, limit[4][0], speed);
+  move_one(6, limit[6][0], speed);
   move_arr(posi2, speed);
-  move_angle(5, limit[5][0], speed);
-  move_angle(7, limit[7][0], speed);
+  move_one(5, limit[5][0], speed);
+  move_one(7, limit[7][0], speed);
   
   //stand(speed);
 
@@ -154,13 +160,13 @@ void clock(int speed){
                  motor[4].read(),  limit[5][1],  motor[6].read(), limit[7][1] };
   
   move_arr(posi1, speed);
-  move_angle(4, limit[4][0], speed);
-  move_angle(6, limit[6][0], speed);
-  stand();
+  move_one(4, limit[4][0], speed);
+  move_one(6, limit[6][0], speed);
+  stand(speed);
   move_arr(posi2, speed);
-  move_angle(5, limit[5][0], speed);
-  move_angle(7, limit[7][0], speed);
-  stand();
+  move_one(5, limit[5][0], speed);
+  move_one(7, limit[7][0], speed);
+  stand(speed);
   init_position(speed);
 }
 
@@ -172,17 +178,17 @@ void anticlock(int speed){
                  motor[4].read(),  limit[5][1],  motor[6].read(), limit[7][1] };
   
   move_arr(posi1, speed);
-  move_angle(4, limit[4][0], speed);
-  move_angle(6, limit[6][0], speed);
-  stand();
+  move_one(4, limit[4][0], speed);
+  move_one(6, limit[6][0], speed);
+  stand(speed);
   move_arr(posi2, speed);
-  move_angle(5, limit[5][0], speed);
-  move_angle(7, limit[7][0], speed);
-  stand();
+  move_one(5, limit[5][0], speed);
+  move_one(7, limit[7][0], speed);
+  stand(speed);
   init_position(speed);
 }
 
-void turret(){
+void turret_move(){
 
 }
 
@@ -226,7 +232,7 @@ char receive() {
 }
 void detect(){
   int angle = 0;
-  float temp;
+  float temp, result;
   for(int i=90; i<=180; i+=1){
     turret.write(i);
     temp = distance();
